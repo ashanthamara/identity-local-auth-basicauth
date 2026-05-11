@@ -1494,12 +1494,11 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
 
     private String resolveUserTenantDomain(String requestTenantDomain, AuthenticationContext context) {
 
-        if (Boolean.parseBoolean(IdentityUtil.getProperty(RESOLVE_TENANT_DOMAIN_FROM_USERNAME_CONFIG)) ||
-                !IdentityTenantUtil.isTenantQualifiedUrlsEnabled() ||
-                context.getSequenceConfig().getApplicationConfig().isSaaSApp()) {
-            return requestTenantDomain;
+        Optional<AuthenticatedUser> sharedUser = FrameworkUtils.getSharedUserIdentifiedInSequence(context);
+        if (sharedUser.isPresent()) {
+            return context.getUserResidentTenantDomain();
         }
 
-        return context.getUserResidentTenantDomain();
+        return requestTenantDomain;
     }
 }
